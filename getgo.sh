@@ -2,7 +2,7 @@
 
 goversion=$1
 
-profilefile=".bashrc"
+profilefile="/home/$SUDO_USER/.bashrc"
 
 goinstallarch="linux-amd64"
 
@@ -37,5 +37,27 @@ else
     echo "unzipping $filename archive to $installpath"
     tar -C $installpath -xzf $downloadpath/$filename
 
-    echo "checking for existing .bashrc env var setup and path modifications"
 fi
+
+echo "checking for existing $profilefile env var setup and path modifications"
+
+grep -Fxq "export GOROOT=/usr/local/go" $profilefile
+if [ $? -ne 0 ]; then
+    echo "adding GOROOT"
+    echo "export GOROOT=$currentpath" >> $profilefile
+fi
+
+grep -Fxq "export GOPATH=\$HOME/go" $profilefile
+if [ $? -ne 0 ]; then
+    echo "adding GOPATH"
+    echo "export GOPATH=\$HOME/go" >> $profilefile
+fi
+
+grep -Fxq "export PATH=\$GOPATH/bin:\$GOROOT/bin:\$PATH" $profilefile
+if [ $? -ne 0 ]; then
+    echo "adding go to PATH"
+    echo "export PATH=\$GOPATH/bin:\$GOROOT/bin:\$PATH" >> $profilefile
+fi
+
+echo "done"
+
